@@ -1,0 +1,6 @@
+
+fields to include:
+
+City name on top
+Temperate in large print next to icon
+underneath needs to be description
