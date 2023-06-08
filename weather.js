@@ -1,6 +1,12 @@
-const apiKey = "9eb9d30c6e8264cd58e881e13119072b";
 const submit = document.querySelector("#submit");
 const cityName = document.querySelector("#cityName");
+let apiKey;
+fetch("./key.json")
+  .then((response) => response.json())
+  .then((json) => {
+    apiKey = json.key;
+    console.log(apiKey);
+  });
 
 async function getCoords(city) {
   const response = await fetch(
@@ -43,3 +49,5 @@ async function getCities(searchTerm) {
     console.log(`${city.name}, ${city.state}`);
   });
 }
+
+async function updateWeatherData({}) {}
