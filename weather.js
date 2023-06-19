@@ -1,11 +1,15 @@
 const submit = document.querySelector("#submit");
 const cityName = document.querySelector("#cityName");
+const weatherCard = document.querySelector(".weatherCard");
+const cityNameLabel = document.querySelector(".weatherCard .cityName");
+const descriptionLabel = document.querySelector("weatherCard .description");
+const tempLabel = document.querySelector("weatherCard .temperature");
+
 let apiKey;
 fetch("./key.json")
   .then((response) => response.json())
   .then((json) => {
     apiKey = json.key;
-    console.log(apiKey);
   });
 
 async function getCoords(city) {
@@ -27,8 +31,11 @@ async function getWeather(city) {
       `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&appid=${apiKey}&units=imperial`
     );
     const data = await response.json();
-    console.log(data);
-    console.log(data.current.weather[0].description);
+    return {
+      cityName: city,
+      description: data.current.weather[0].description,
+      temperature: data.current.temp,
+    };
   } catch (error) {
     console.log(error);
   }
@@ -37,7 +44,9 @@ async function getWeather(city) {
 submit.addEventListener("click", async () => {
   let city = cityName.value;
   if (city.length < 1) return;
-  getWeather(city);
+  let data = await getWeather(city);
+  console.log(data);
+  updateWeatherData(data);
 });
 
 async function getCities(searchTerm) {
@@ -50,4 +59,10 @@ async function getCities(searchTerm) {
   });
 }
 
-async function updateWeatherData({}) {}
+async function updateWeatherData(data) {
+  document.querySelector(".weatherCard .cityName").innerHTML = data.cityName;
+  document.querySelector(".weatherCard .description").innerHTML =
+    data.description;
+  document.querySelector(".weatherCard .temperature").innerHTML =
+    data.temperature;
+}
