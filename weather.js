@@ -1,9 +1,10 @@
-const submit = document.querySelector("#submit");
+const submitButton = document.querySelector("#submit");
 const cityName = document.querySelector("#cityName");
 const weatherCard = document.querySelector(".weatherCard");
 const cityNameLabel = document.querySelector(".weatherCard .cityName");
 const descriptionLabel = document.querySelector("weatherCard .description");
 const tempLabel = document.querySelector("weatherCard .temperature");
+const searchResults = document.querySelector("#results");
 
 let apiKey;
 fetch("./key.json")
@@ -12,57 +13,69 @@ fetch("./key.json")
     apiKey = json.key;
   });
 
-async function getCoords(city) {
-  const response = await fetch(
-    `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=5&appid=${apiKey}`
-  );
-  const data = await response.json();
-  const lat = data[0].lat;
-  const lon = data[0].lon;
-
-  return [lat, lon];
-}
-
-async function getWeather(city) {
+async function getWeatherData(city) {
   try {
-    const [lat, lon] = await getCoords(city);
-
     const response = await fetch(
-      `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&appid=${apiKey}&units=imperial`
+      `https://api.openweathermap.org/data/3.0/onecall?lat=${city.lat}&lon=${city.lon}&appid=${apiKey}&units=imperial`
     );
     const data = await response.json();
-    return {
-      cityName: city,
-      description: data.current.weather[0].description,
-      temperature: data.current.temp,
-    };
+    return data;
   } catch (error) {
     console.log(error);
   }
 }
 
-submit.addEventListener("click", async () => {
-  let city = cityName.value;
-  if (city.length < 1) return;
-  let data = await getWeather(city);
-  console.log(data);
-  updateWeatherData(data);
+submitButton.addEventListener("click", async () => {
+  updateSearchResultList(await getCities(cityName.value));
 });
 
+//API returns list of cities matching search term
+//TODO: Lists seem to be incomplete. A search of Rossville does not return rossville,GA
 async function getCities(searchTerm) {
   const response = await fetch(
     `http://api.openweathermap.org/geo/1.0/direct?q=${searchTerm}&limit=5&appid=${apiKey}`
   );
-  const data = await response.json();
-  data.forEach((city) => {
-    console.log(`${city.name}, ${city.state}`);
-  });
+  return await response.json();
 }
 
-async function updateWeatherData(data) {
-  document.querySelector(".weatherCard .cityName").innerHTML = data.cityName;
-  document.querySelector(".weatherCard .description").innerHTML =
-    data.description;
-  document.querySelector(".weatherCard .temperature").innerHTML =
-    data.temperature;
+async function updateWeatherCard(
+  cityName,
+  cityState,
+  description,
+  temperature
+) {
+  document.querySelector(
+    ".weatherCard .cityName"
+  ).textContent = `${cityName}, ${cityState}`;
+  document.querySelector(".weatherCard .description").textContent = description;
+  document.querySelector(".weatherCard .temperature").textContent = temperature;
+}
+
+function addSearchResultListItem(resultObject) {
+  let resultListItemElement = document.createElement("li");
+  resultListItemElement.classList.add("searchResult");
+  resultListItemElement.textContent = `${resultObject.name}, ${resultObject.state}`;
+  resultListItemElement.addEventListener("click", async () => {
+    let weatherData = await getWeatherData(resultObject);
+    updateWeatherCard(
+      resultObject.name,
+      resultObject.state,
+      weatherData.current.weather[0].description,
+      weatherData.current.temp
+    );
+    // clearSearchResultList(); Will need to be present, but left commented for debug purposes
+  });
+  return resultListItemElement;
+}
+
+function clearSearchResultList() {
+  while (searchResults.firstChild) {
+    searchResults.removeChild(searchResults.lastChild);
+  }
+}
+function updateSearchResultList(cityList) {
+  clearSearchResultList();
+  cityList.forEach((city) => {
+    searchResults.appendChild(addSearchResultListItem(city));
+  });
 }
