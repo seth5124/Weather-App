@@ -23,3 +23,7 @@ body {
 .searchResult:hover {
   background-color: rgba(126, 126, 126, 0.678);
 }
+.weatherIcon {
+  height: 80px;
+  width: 90px;
+}

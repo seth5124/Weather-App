@@ -2,6 +2,7 @@ const submitButton = document.querySelector("#submit");
 const cityName = document.querySelector("#cityName");
 const weatherCard = document.querySelector(".weatherCard");
 const cityNameLabel = document.querySelector(".weatherCard .cityName");
+const weatherIconDiv = document.querySelector(".weatherCard .weatherIcon");
 const descriptionLabel = document.querySelector("weatherCard .description");
 const tempLabel = document.querySelector("weatherCard .temperature");
 const searchResults = document.querySelector("#results");
@@ -42,26 +43,32 @@ async function updateWeatherCard(
   cityName,
   cityState,
   description,
-  temperature
+  temperature,
+  icon
 ) {
   document.querySelector(
     ".weatherCard .cityName"
   ).textContent = `${cityName}, ${cityState}`;
   document.querySelector(".weatherCard .description").textContent = description;
   document.querySelector(".weatherCard .temperature").textContent = temperature;
+  document.querySelector(
+    ".weatherCard .weatherIcon"
+  ).style.backgroundImage = `url('./icons/${icon}@2x.png')`;
 }
 
-function addSearchResultListItem(resultObject) {
+function addSearchResultListItem(city) {
   let resultListItemElement = document.createElement("li");
   resultListItemElement.classList.add("searchResult");
-  resultListItemElement.textContent = `${resultObject.name}, ${resultObject.state}`;
+  resultListItemElement.textContent = `${city.name}, ${city.state}`;
   resultListItemElement.addEventListener("click", async () => {
-    let weatherData = await getWeatherData(resultObject);
+    let weatherData = await getWeatherData(city);
+    console.log(weatherData);
     updateWeatherCard(
-      resultObject.name,
-      resultObject.state,
+      city.name,
+      city.state,
       weatherData.current.weather[0].description,
-      weatherData.current.temp
+      weatherData.current.temp,
+      weatherData.current.weather[0].icon
     );
     // clearSearchResultList(); Will need to be present, but left commented for debug purposes
   });
