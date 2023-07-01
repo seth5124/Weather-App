@@ -31,12 +31,25 @@ submitButton.addEventListener("click", async () => {
 });
 
 //API returns list of cities matching search term
-//TODO: Lists seem to be incomplete. A search of Rossville does not return rossville,GA
 async function getCities(searchTerm) {
-  const response = await fetch(
-    `http://api.openweathermap.org/geo/1.0/direct?q=${searchTerm}&limit=5&appid=${apiKey}`
-  );
-  return await response.json();
+  let [cityName,stateCode] = searchTerm.split(',');
+
+  let apiURL= `http://api.openweathermap.org/geo/1.0/direct?q=${cityName},${stateCode},US&limit=5&appid=${apiKey}`
+
+  if (stateCode === undefined){
+    apiURL = `http://api.openweathermap.org/geo/1.0/direct?q=${cityName},US&limit=5&appid=${apiKey}`
+  }
+
+  try{
+    const response = await fetch(
+      apiURL
+    );
+    return response.json();
+  }
+  catch(error){
+    console.log(error);
+  }
+
 }
 
 async function updateWeatherCard(
