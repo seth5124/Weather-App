@@ -50,7 +50,7 @@ async function updateWeatherCard(
     ".weatherCard .cityName"
   ).textContent = `${cityName}, ${cityState}`;
   document.querySelector(".weatherCard .description").textContent = description;
-  document.querySelector(".weatherCard .temperature").textContent = temperature;
+  document.querySelector(".weatherCard .temperature").textContent = `${temperature}\u00B0F`;
   document.querySelector(
     ".weatherCard .weatherIcon"
   ).style.backgroundImage = `url('./icons/${icon}@2x.png')`;
