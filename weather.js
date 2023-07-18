@@ -27,7 +27,23 @@ async function getWeatherData(city) {
 }
 
 submitButton.addEventListener("click", async () => {
-  updateSearchResultList(await getCities(cityName.value));
+  let cities = await getCities(cityName.value)
+  console.log(cities.length);
+  if(cities.length == 1){
+    let city = cities[0];
+    let weatherData = await getWeatherData(city);
+    console.log(weatherData);
+    updateWeatherCard(
+      city.name,
+      city.state,
+      weatherData.current.weather[0].description,
+      weatherData.current.temp,
+      weatherData.current.weather[0].icon
+    );
+  }
+  else{
+    updateSearchResultList(cities);
+  }
 });
 
 //API returns list of cities matching search term
